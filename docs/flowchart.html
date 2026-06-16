@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Post-Epic FHIR Ingestion Demo &mdash; Flow</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #f5f7fa;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      width: 100%;
+      background: linear-gradient(135deg, #134e4a 0%, #0f766e 100%);
+      color: #fff;
+      text-align: center;
+      padding: 2rem 1rem 1.75rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,.15);
+    }
+    header h1 {
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    header p {
+      margin-top: .5rem;
+      font-size: .95rem;
+      color: #99f6e4;
+    }
+
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 1400px;
+      padding: 2rem 1rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    #flowchart {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .mermaid svg { margin: 0 auto; display: block; }
+
+    .legend {
+      width: 100%;
+      max-width: 1400px;
+      padding: 0 1rem 2.5rem;
+    }
+    .legend-inner {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.25rem 1.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+    }
+    .legend-title {
+      font-weight: 600;
+      font-size: .85rem;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: #64748b;
+      margin-right: .5rem;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+      font-size: .85rem;
+      color: #334155;
+    }
+    .legend-swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    footer {
+      width: 100%;
+      text-align: center;
+      padding: 1rem;
+      font-size: .8rem;
+      color: #94a3b8;
+      border-top: 1px solid #e2e8f0;
+      background: #fff;
+    }
+
+    @media (max-width: 600px) {
+      header { padding: 1.25rem .75rem 1rem; }
+      main { padding: 1rem .5rem; }
+      .legend-inner { padding: 1rem; gap: .75rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Post-Epic FHIR Ingestion &mdash; Demo Flow</h1>
+    <p>Devin adds FHIR R4 Condition/Observation ingestion to a clinical research workbench</p>
+  </header>
+
+  <main>
+    <div id="flowchart">
+      <pre class="mermaid">
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor':      '#ccfbf1',
+    'primaryTextColor':  '#1e293b',
+    'primaryBorderColor':'#0f766e',
+    'secondaryColor':    '#f0fdf4',
+    'tertiaryColor':     '#fef3c7',
+    'lineColor':         '#64748b',
+    'fontSize':          '14px'
+  },
+  'flowchart': {
+    'useMaxWidth': false,
+    'htmlLabels': false,
+    'padding': 20,
+    'nodeSpacing': 30,
+    'rankSpacing': 40
+  }
+}}%%
+
+flowchart TD
+  TICKET[Integration Ticket RESWB-412]
+  DEVIN[Devin Session Starts]
+
+  subgraph INSPECT [Repo Inspection]
+    direction TB
+    READ_MODEL[Read Data Model]
+    READ_MAP[Read Terminology Maps]
+    READ_FHIR[Read Sample Bundles]
+    READ_MODEL --> READ_MAP --> READ_FHIR
+  end
+
+  subgraph IMPLEMENT [Implementation]
+    direction TB
+    ADAPTER[Build FHIR Adapter]
+    WIRE[Wire Ingestion Endpoint]
+    NORMALIZE[Normalize Dx Codes]
+    AUDIT[Persist Audit Records]
+    ADAPTER --> WIRE --> NORMALIZE --> AUDIT
+  end
+
+  TESTS[Add Unit + Integration Tests]
+  DOCS[Update Docs]
+  PR[Open PR With Assumptions]
+  REVIEW[Coordinator Reviews Worklist]
+
+  GUARDRAIL[Support Only]
+
+  TICKET --> DEVIN
+  DEVIN --> READ_MODEL
+  READ_FHIR --> ADAPTER
+  AUDIT --> TESTS
+  TESTS --> DOCS
+  DOCS --> PR
+  PR --> REVIEW
+  REVIEW --> GUARDRAIL
+
+  classDef trigger   fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
+  classDef devin     fill:#e0e7ff,stroke:#6366f1,stroke-width:2px,color:#312e81
+  classDef work      fill:#ccfbf1,stroke:#0f766e,stroke-width:1.5px,color:#134e4a
+  classDef test      fill:#dbeafe,stroke:#3b82f6,stroke-width:2px,color:#1e3a8a
+  classDef output    fill:#fef3c7,stroke:#f59e0b,stroke-width:2px,color:#78350f
+  classDef guard     fill:#fee2e2,stroke:#ef4444,stroke-width:2px,color:#7f1d1d
+
+  class TICKET trigger
+  class DEVIN devin
+  class READ_MODEL,READ_MAP,READ_FHIR,ADAPTER,WIRE,NORMALIZE,AUDIT work
+  class TESTS test
+  class DOCS,PR output
+  class REVIEW output
+  class GUARDRAIL guard
+      </pre>
+    </div>
+  </main>
+
+  <section class="legend">
+    <div class="legend-inner">
+      <span class="legend-title">Legend</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#d1fae5;border:2px solid #059669;"></span> Trigger</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#e0e7ff;border:2px solid #6366f1;"></span> Devin Session</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#ccfbf1;border:2px solid #0f766e;"></span> Implementation Step</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#dbeafe;border:2px solid #3b82f6;"></span> Testing</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#fef3c7;border:2px solid #f59e0b;"></span> Output / Review</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#fee2e2;border:2px solid #ef4444;"></span> Guardrail</span>
+    </div>
+  </section>
+
+  <footer>
+    Clinical Research FHIR Demo &mdash; Post-Epic Integration &copy; 2026 &middot; FHIR R4 &middot; Synthetic Data Only
+  </footer>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      securityLevel: 'loose',
+      flowchart: {
+        htmlLabels: false,
+        curve: 'basis',
+        useMaxWidth: false
+      }
+    });
+  </script>
+</body>
+</html>

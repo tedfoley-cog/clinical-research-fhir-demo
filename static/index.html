@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clinical Research Workbench</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1>Clinical Research Workbench</h1>
+      <p>Trial pre-screening support for research coordinators</p>
+    </div>
+  </header>
+
+  <div class="guardrail">
+    Decision support only &mdash; surfaces candidate matches for human review.
+    Does not make eligibility, enrollment, or treatment decisions. Synthetic data, no PHI.
+  </div>
+
+  <main>
+    <section class="card" id="ingestion-card">
+      <h2>FHIR Ingestion</h2>
+      <div id="ingestion-status" class="status status-unknown">Checking ingestion status&hellip;</div>
+      <p class="muted" id="audit-summary"></p>
+    </section>
+
+    <section class="card">
+      <h2>Participants</h2>
+      <table id="participants-table">
+        <thead>
+          <tr><th>MRN</th><th>Name</th><th>Birth year</th><th>Sex</th><th>Diagnoses</th><th>Measures</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Pre-Screening Worklist</h2>
+      <label for="trial-select">Trial:</label>
+      <select id="trial-select"></select>
+      <div id="trial-criteria" class="muted"></div>
+      <table id="prescreen-table">
+        <thead>
+          <tr><th>Status</th><th>MRN</th><th>Name</th><th>Rationale</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer>
+    Clinical Research Workbench &middot; initial state &middot; FastAPI + SQLite &middot; synthetic data
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

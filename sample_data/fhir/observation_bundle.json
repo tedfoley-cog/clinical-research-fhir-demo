@@ -1,0 +1,294 @@
+{
+  "resourceType": "Bundle",
+  "id": "synthetic-observations-001",
+  "type": "collection",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:obs-ecog-1001",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-ecog-1001",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "survey",
+                "display": "Survey"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "89247-1",
+              "display": "ECOG Performance Status score"
+            }
+          ],
+          "text": "ECOG Performance Status score"
+        },
+        "subject": {
+          "reference": "Patient/MRN-1001"
+        },
+        "effectiveDateTime": "2025-11-02",
+        "valueInteger": 1
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:obs-anc-1001",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-anc-1001",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "751-8",
+              "display": "Neutrophils [#/volume] in Blood by Automated count"
+            }
+          ],
+          "text": "Absolute neutrophil count"
+        },
+        "subject": {
+          "reference": "Patient/MRN-1001"
+        },
+        "effectiveDateTime": "2025-11-02",
+        "valueQuantity": {
+          "value": 2.1,
+          "unit": "10*9/L",
+          "system": "http://unitsofmeasure.org",
+          "code": "10*9/L"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:obs-ecog-1002",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-ecog-1002",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "survey",
+                "display": "Survey"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "89247-1",
+              "display": "ECOG Performance Status score"
+            }
+          ],
+          "text": "ECOG Performance Status score"
+        },
+        "subject": {
+          "reference": "Patient/MRN-1002"
+        },
+        "effectiveDateTime": "2025-10-09",
+        "valueInteger": 0
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:obs-ecog-1003",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-ecog-1003",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "survey",
+                "display": "Survey"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "89247-1",
+              "display": "ECOG Performance Status score"
+            }
+          ],
+          "text": "ECOG Performance Status score"
+        },
+        "subject": {
+          "reference": "Patient/MRN-1003"
+        },
+        "effectiveDateTime": "2025-09-30",
+        "valueInteger": 2
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:obs-anc-1003",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-anc-1003",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "751-8",
+              "display": "Neutrophils [#/volume] in Blood by Automated count"
+            }
+          ],
+          "text": "Absolute neutrophil count"
+        },
+        "subject": {
+          "reference": "Patient/MRN-1003"
+        },
+        "effectiveDateTime": "2025-09-30",
+        "valueQuantity": {
+          "value": 1.8,
+          "unit": "10*9/L",
+          "system": "http://unitsofmeasure.org",
+          "code": "10*9/L"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:obs-ecog-1004",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-ecog-1004",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "survey",
+                "display": "Survey"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "89247-1",
+              "display": "ECOG Performance Status score"
+            }
+          ],
+          "text": "ECOG Performance Status score"
+        },
+        "subject": {
+          "reference": "Patient/MRN-1004"
+        },
+        "effectiveDateTime": "2025-11-18",
+        "valueInteger": 0
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:obs-anc-1004",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-anc-1004",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "laboratory",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "751-8",
+              "display": "Neutrophils [#/volume] in Blood by Automated count"
+            }
+          ],
+          "text": "Absolute neutrophil count"
+        },
+        "subject": {
+          "reference": "Patient/MRN-1004"
+        },
+        "effectiveDateTime": "2025-11-18",
+        "valueQuantity": {
+          "value": 3.0,
+          "unit": "10*9/L",
+          "system": "http://unitsofmeasure.org",
+          "code": "10*9/L"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:obs-ecog-1006",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-ecog-1006",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "survey",
+                "display": "Survey"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "89247-1",
+              "display": "ECOG Performance Status score"
+            }
+          ],
+          "text": "ECOG Performance Status score"
+        },
+        "subject": {
+          "reference": "Patient/MRN-1006"
+        },
+        "effectiveDateTime": "2025-08-01",
+        "valueInteger": 1
+      }
+    }
+  ]
+}
