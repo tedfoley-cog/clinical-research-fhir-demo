@@ -61,12 +61,11 @@ def test_prescreen_returns_worklist(client):
     assert all(r["status"] == "not_matched" for r in results)
 
 
-def test_fhir_ingestion_not_implemented(client):
+def test_fhir_ingestion_accepts_empty_bundle(client):
+    # FHIR ingestion is implemented (RESWB-412); an empty Bundle is a no-op.
     resp = client.post("/api/ingest/fhir", json={"resourceType": "Bundle", "entry": []})
-    assert resp.status_code == 501
-
-
-def test_audit_trail_empty(client):
-    resp = client.get("/api/ingest/audit")
     assert resp.status_code == 200
-    assert resp.json() == []
+    summary = resp.json()
+    assert summary["resources_received"] == 0
+    assert summary["resources_ingested"] == 0
+    assert summary["outcome"] == "success"

@@ -66,13 +66,63 @@ software work that accelerates integration without increasing clinical risk.
 ## What Devin does live
 
 Devin receives the ticket (`docs/TICKET.md`), inspects the repo (data model,
-terminology mappings, sample FHIR bundles), implements the empty
-`app/adapters/fhir/` adapter and wires `POST /api/ingest/fhir` (currently a 501
-stub), handles unmapped codes (prostate cancer → skip + audit), adds
+terminology mappings, sample FHIR bundles), implements the
+`app/adapters/fhir/adapter.py` adapter and wires `POST /api/ingest/fhir`,
+handles unmapped codes (prostate cancer → skip + audit), adds
 `tests/test_fhir_ingestion.py`, updates documentation, and opens a PR with
 assumptions and reviewer notes. The audience sees the workbench UI before (empty
 worklist) and after (matches light up) via Devin's live browser tab, plus the
 Swagger UI at `/docs` and the generated PR.
+
+## Ingesting FHIR data
+
+`POST /api/ingest/fhir` accepts a FHIR R4 `Bundle` of `Condition` and
+`Observation` resources and returns a summary of what happened:
+
+```bash
+python -m app.seed          # participants + trials (no clinical data yet)
+uvicorn app.main:app        # serve the workbench
+
+curl -s -X POST localhost:8000/api/ingest/fhir \
+  -H 'content-type: application/json' \
+  --data @sample_data/fhir/condition_bundle.json
+curl -s -X POST localhost:8000/api/ingest/fhir \
+  -H 'content-type: application/json' \
+  --data @sample_data/fhir/observation_bundle.json
+```
+
+Response (and the `IngestionAudit` row written per request):
+
+```json
+{
+  "source": "api",
+  "resource_type": "Condition",
+  "resources_received": 6,
+  "resources_ingested": 5,
+  "resources_skipped": 1,
+  "outcome": "partial",
+  "detail": "Received 6, ingested 5, skipped 1. Skips: Condition for MRN-1005: unmapped code(s) http://snomed.info/sct|399068003",
+  "audit_id": 1
+}
+```
+
+How the adapter (`app/adapters/fhir/adapter.py`) normalizes each entry:
+
+- **Subject resolution** — `subject.reference` (`Patient/{mrn}`) is matched to an
+  existing participant. Resources for unknown MRNs are skipped (never created).
+- **Normalization** — `Condition.code.coding[]` → `map_diagnosis` →
+  `Diagnosis.category`; `Observation.code.coding[]` → `map_measure` →
+  `MeasureResult.measure`. The original `system`/`code`/`display` is preserved.
+- **Values** — Observation values are read from `valueQuantity.value` or
+  `valueInteger` (ECOG is an integer, ANC a quantity).
+- **Unmapped codes** — skipped (not failed), counted, and recorded as
+  `system|code` in the audit `detail`. One unknown code never fails the bundle.
+- **Audit** — exactly one `IngestionAudit` row per request; read the history at
+  `GET /api/ingest/audit`.
+
+> **Guardrail:** ingestion only normalizes and stores synthetic data. The
+> pre-screening worklist remains a human-reviewed support tool — no eligibility,
+> enrollment, or treatment decisions.
 
 ## How the demo runs
 
@@ -110,8 +160,8 @@ app/
   routers/
     participants.py        GET participant endpoints
     trials.py              GET trials + pre-screening worklist
-    ingestion.py           POST /api/ingest/fhir (STUB — 501 until implemented)
-  adapters/fhir/           Empty package — Devin implements adapter.py here
+    ingestion.py           POST /api/ingest/fhir + GET /api/ingest/audit
+  adapters/fhir/adapter.py FHIR R4 Bundle parsing + normalization
   terminology/mappings.py  Partial SNOMED/ICD-10/LOINC → internal key maps
 static/                    Workbench UI (HTML/CSS/JS)
 sample_data/fhir/          Synthetic FHIR R4 Condition + Observation bundles

@@ -1,8 +1,7 @@
-# FHIR Adapter Contract (to be implemented)
+# FHIR Adapter Contract
 
-This package is intentionally empty in the initial state. The live demo task is to
-implement `adapter.py` here and wire it into `POST /api/ingest/fhir`
-(`app/routers/ingestion.py`).
+Implemented in `adapter.py` (`ingest_bundle`) and wired into `POST /api/ingest/fhir`
+(`app/routers/ingestion.py`). This document is the contract the adapter follows.
 
 ## Expected behavior
 
