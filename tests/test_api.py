@@ -61,12 +61,22 @@ def test_prescreen_returns_worklist(client):
     assert all(r["status"] == "not_matched" for r in results)
 
 
-def test_fhir_ingestion_not_implemented(client):
-    resp = client.post("/api/ingest/fhir", json={"resourceType": "Bundle", "entry": []})
-    assert resp.status_code == 501
-
-
 def test_audit_trail_empty(client):
     resp = client.get("/api/ingest/audit")
     assert resp.status_code == 200
     assert resp.json() == []
+
+
+def test_fhir_ingestion_endpoint_available(client):
+    # Ingestion is now implemented: an empty Bundle is accepted and audited.
+    resp = client.post("/api/ingest/fhir", json={"resourceType": "Bundle", "entry": []})
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["resources_received"] == 0
+    assert body["resources_ingested"] == 0
+    assert body["outcome"] == "success"
+
+
+def test_fhir_ingestion_rejects_non_bundle(client):
+    resp = client.post("/api/ingest/fhir", json={"resourceType": "Patient"})
+    assert resp.status_code == 400

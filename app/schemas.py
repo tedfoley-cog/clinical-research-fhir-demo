@@ -76,3 +76,14 @@ class AuditOut(BaseModel):
     resources_skipped: int
     outcome: str
     detail: str
+
+
+class IngestSummary(BaseModel):
+    """Summary returned by POST /api/ingest/fhir (mirrors the audit row)."""
+
+    audit_id: int
+    resources_received: int
+    resources_ingested: int
+    resources_skipped: int
+    outcome: str
+    detail: str
