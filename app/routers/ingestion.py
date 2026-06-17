@@ -1,48 +1,54 @@
 """FHIR ingestion endpoint.
 
->>> THIS IS THE GAP THE DEMO CLOSES. <<<
+``POST /api/ingest/fhir`` accepts a FHIR R4 ``Bundle`` of ``Condition`` and
+``Observation`` resources, normalizes coded values via
+``app.terminology.mappings``, resolves ``subject.reference`` (``Patient/{mrn}``)
+to an existing participant, persists ``Diagnosis`` / ``MeasureResult`` rows, and
+writes one ``IngestionAudit`` row per request. The parsing/normalization logic
+lives in ``app.adapters.fhir.adapter`` (see ``app/adapters/fhir/README.md``).
 
-In the initial state, FHIR ingestion is not wired up: posting a Bundle returns
-501 Not Implemented. The research team currently enters Condition/Observation
-data by hand, which does not scale post-Epic.
-
-During the demo, Devin implements `app/adapters/fhir/adapter.py` and replaces the
-body of `ingest_fhir` below so that it:
-  1. parses the incoming FHIR R4 Bundle (Condition + Observation entries),
-  2. normalizes coded values via `app.terminology.mappings`,
-  3. resolves `subject.reference` (Patient/{mrn}) to a Participant,
-  4. persists Diagnosis / MeasureResult rows,
-  5. writes an IngestionAudit row (received/ingested/skipped + unmapped codes),
-  6. returns a summary.
-
-The read endpoint for the audit trail (`GET /api/ingest/audit`) already exists so
-the workbench can show ingestion history once Devin wires up writes.
+``GET /api/ingest/audit`` returns the ingestion audit trail so the workbench can
+show ingestion history.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Body, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from ..adapters.fhir.adapter import ingest_bundle
 from ..database import get_db
 from ..models import IngestionAudit
-from ..schemas import AuditOut
+from ..schemas import AuditOut, IngestSummary
 
 router = APIRouter(prefix="/api/ingest", tags=["ingestion"])
 
 
-@router.post("/fhir", status_code=501)
-async def ingest_fhir(request: Request, db: Session = Depends(get_db)) -> dict:
+@router.post("/fhir", response_model=IngestSummary)
+def ingest_fhir(
+    bundle: dict = Body(..., description="FHIR R4 Bundle of Condition/Observation resources"),
+    db: Session = Depends(get_db),
+) -> IngestSummary:
     """Ingest a FHIR R4 Bundle of Condition/Observation resources.
 
-    Not implemented in the initial state — see module docstring. Devin implements
-    this during the demo.
+    Normalizes and stores the data and records an audit row. This is
+    decision-support tooling only — it never makes eligibility, enrollment, or
+    treatment decisions.
     """
-    raise HTTPException(
-        status_code=501,
-        detail=(
-            "FHIR ingestion is not implemented. Implement app/adapters/fhir/adapter.py "
-            "and wire it into this endpoint (see app/adapters/fhir/README.md)."
-        ),
+    if bundle.get("resourceType") != "Bundle":
+        raise HTTPException(
+            status_code=400,
+            detail="Expected a FHIR Bundle (resourceType == 'Bundle').",
+        )
+
+    audit = ingest_bundle(db, bundle)
+    db.commit()
+    return IngestSummary(
+        audit_id=audit.id,
+        resources_received=audit.resources_received,
+        resources_ingested=audit.resources_ingested,
+        resources_skipped=audit.resources_skipped,
+        outcome=audit.outcome,
+        detail=audit.detail,
     )
 
 

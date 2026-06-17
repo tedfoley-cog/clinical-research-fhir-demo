@@ -97,6 +97,42 @@ ruff check .
 pytest
 ```
 
+## FHIR ingestion
+
+`POST /api/ingest/fhir` accepts a FHIR R4 `Bundle` of `Condition` and
+`Observation` resources and returns a summary of what was received, ingested,
+and skipped. Ingestion only normalizes and stores data — it never makes
+eligibility, enrollment, or treatment decisions.
+
+```bash
+# with the server running (uvicorn app.main:app)
+curl -X POST http://localhost:8000/api/ingest/fhir \
+  -H 'Content-Type: application/json' \
+  --data @sample_data/fhir/condition_bundle.json
+curl -X POST http://localhost:8000/api/ingest/fhir \
+  -H 'Content-Type: application/json' \
+  --data @sample_data/fhir/observation_bundle.json
+```
+
+What it does (see `app/adapters/fhir/README.md` for the full contract):
+
+- **Normalizes** coded diagnoses/observations via `app/terminology/mappings.py`
+  (`Condition.code.coding[]` → diagnosis category, `Observation.code.coding[]` →
+  measure key), preserving the original `system`/`code`/`display` for traceability.
+- **Resolves subjects** by mapping `subject.reference` (`Patient/{mrn}`) to an
+  existing participant; resources for unknown MRNs are skipped (never created).
+- **Reads Observation values** from both `valueInteger` (ECOG) and
+  `valueQuantity` (ANC).
+- **Handles unmapped codes** gracefully: the resource is skipped, counted, and
+  its `system|code` is recorded in the ingestion audit `detail` rather than
+  silently dropped (e.g. prostate cancer, which is intentionally not yet mapped).
+- **Audits** exactly one `IngestionAudit` row per request, viewable at
+  `GET /api/ingest/audit` and surfaced in the workbench UI.
+
+After ingesting both sample bundles, the `LUNG-2024-017` worklist surfaces
+**Alex Rivera (MRN-1001)** and **Casey Kim (MRN-1004)** as potential matches for
+coordinator review.
+
 ## Repo layout
 
 ```
@@ -110,8 +146,8 @@ app/
   routers/
     participants.py        GET participant endpoints
     trials.py              GET trials + pre-screening worklist
-    ingestion.py           POST /api/ingest/fhir (STUB — 501 until implemented)
-  adapters/fhir/           Empty package — Devin implements adapter.py here
+    ingestion.py           POST /api/ingest/fhir + GET /api/ingest/audit
+  adapters/fhir/adapter.py FHIR R4 Bundle → normalized Diagnosis/MeasureResult
   terminology/mappings.py  Partial SNOMED/ICD-10/LOINC → internal key maps
 static/                    Workbench UI (HTML/CSS/JS)
 sample_data/fhir/          Synthetic FHIR R4 Condition + Observation bundles
