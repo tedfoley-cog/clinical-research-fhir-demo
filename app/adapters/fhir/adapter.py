@@ -56,7 +56,7 @@ def _observation_value(resource: dict) -> tuple[float, str] | None:
         quantity = resource["valueQuantity"] or {}
         if quantity.get("value") is not None:
             return float(quantity["value"]), str(quantity.get("unit") or "")
-    if "valueInteger" in resource:
+    if resource.get("valueInteger") is not None:
         return float(resource["valueInteger"]), ""
     return None
 

@@ -120,6 +120,30 @@ def test_unknown_subject_is_skipped_not_created(client):
     assert all(p["mrn"] != "MRN-9999" for p in client.get("/api/participants").json())
 
 
+def test_observation_with_null_value_is_skipped_not_crashing(client):
+    bundle = {
+        "resourceType": "Bundle",
+        "entry": [
+            {
+                "resource": {
+                    "resourceType": "Observation",
+                    "id": "obs-null",
+                    "code": {"coding": [{"system": "http://loinc.org", "code": "89247-1"}]},
+                    "subject": {"reference": "Patient/MRN-1001"},
+                    "valueInteger": None,
+                }
+            }
+        ],
+    }
+    resp = client.post("/api/ingest/fhir", json=bundle)
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["resources_received"] == 1
+    assert body["resources_ingested"] == 0
+    assert body["resources_skipped"] == 1
+    assert "missing value" in body["detail"]
+
+
 def test_worklist_lights_up_after_ingesting_both_bundles(client):
     client.post("/api/ingest/fhir", json=_bundle("condition_bundle.json"))
     client.post("/api/ingest/fhir", json=_bundle("observation_bundle.json"))
